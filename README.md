@@ -1,6 +1,4 @@
----
 
-```markdown
 # 🤖 Bittle Robotics Programming Curriculum
 
 This curriculum provides a progressive robotics programming guide for Grades 1–12. Activities are grouped by learning level—Foundation, Logic, and Mastery—and include setup, student instructions, code examples (block-based and Python), and learning outcomes based on Bloom’s Taxonomy.
