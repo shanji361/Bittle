@@ -1,4 +1,4 @@
-# 🐶 How to Set Up Bittle
+# How to Set Up Bittle
 
 This guide walks you through setting up the Petoi **Bittle** robot using the BiBoard V0, Arduino IDE, and the `pyBittle` Python library.
 
@@ -6,7 +6,7 @@ This guide walks you through setting up the Petoi **Bittle** robot using the BiB
 
 Bittle requires Arduino IDE **1.8.18** (not the 2.x versions).
 
-👉 [Download Arduino 1.8.18](https://www.arduino.cc/en/software/OldSoftwareReleases/)
+[Download Arduino 1.8.18](https://www.arduino.cc/en/software/OldSoftwareReleases/)
 
 > 💡 Choose the correct version for your operating system (Windows, macOS, or Linux).
 
@@ -14,7 +14,7 @@ Bittle requires Arduino IDE **1.8.18** (not the 2.x versions).
 
 Follow Petoi’s official documentation to understand the BiBoard’s layout and wiring.
 
-📘 [BiBoard V0 Guide](https://docs.petoi.com/biboard/biboard-v0#id-2.-modules-and-functions)
+[BiBoard V0 Guide](https://docs.petoi.com/biboard/biboard-v0#id-2.-modules-and-functions)
 
 > 🛠️ This explains wiring, power setup, and module functions.
 
@@ -22,7 +22,7 @@ Follow Petoi’s official documentation to understand the BiBoard’s layout and
 
 Use the Arduino IDE to upload a sketch to Bittle’s BiBoard.
 
-📥 [Upload Sketch to BiBoard Guide](https://docs.petoi.com/arduino-ide/upload-sketch-for-biboard)
+[Upload Sketch to BiBoard Guide](https://docs.petoi.com/arduino-ide/upload-sketch-for-biboard)
 
 > 📌 Make sure you install the necessary board definitions and libraries.
 
