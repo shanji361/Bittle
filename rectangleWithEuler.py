@@ -53,15 +53,19 @@ def get_yaw_from_bittle(ser):
     """
     while ser.in_waiting:
         line = ser.readline().decode(errors="ignore").strip()
-        if line.startswith("ICM:") or line.startswith("MPU:"):
+        if line.startswith("ICM:") or line.startswith("MCU:"):
             try:
-                parts = line.split(',')
-                for part in parts:
-                    if part.startswith("yaw="):
-                        return float(part.split('=')[1])
-            except ValueError:
+                # Remove label prefix
+                line = line.split(":")[1].strip()
+                # Split into float values
+                values = [float(x) for x in line.split()]
+                if len(values) >= 6:
+                    yaw = values[3]  # 4th value is yaw (YPR[0])
+                    return yaw
+            except (ValueError, IndexError):
                 continue
     return None
+
 
 def turn_right_90_degrees(ser):
     """
