@@ -91,7 +91,7 @@ def turn_right_90_degrees(ser):
             break  # Close enough to 90°
 
         ser.write(TURN_RIGHT_IN_PLACE)
-        time.sleep(0.05)
+        time.sleep(0.2)
 
     ser.write(BALANCE)
     print("90-degree turn complete.\n")
