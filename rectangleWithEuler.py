@@ -45,6 +45,23 @@ def connect_to_bittle():
         print(f"ERROR: Could not connect to Bittle on {SERIAL_PORT}.")
         print("       Please check the port name and ensure the robot is on.")
         return None
+        
+def get_yaw_from_bittle(ser):
+    """
+    Reads yaw from the serial connection.
+    Returns yaw as a float, or None if unreadable.
+    """
+    while ser.in_waiting:
+        line = ser.readline().decode(errors="ignore").strip()
+        if line.startswith("ICM:") or line.startswith("MPU:"):
+            try:
+                parts = line.split(',')
+                for part in parts:
+                    if part.startswith("yaw="):
+                        return float(part.split('=')[1])
+            except ValueError:
+                continue
+    return None
 
 def run_timed_square_sequence(ser):
     """
