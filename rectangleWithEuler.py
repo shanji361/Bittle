@@ -150,12 +150,8 @@ def run_timed_square_sequence(ser):
 
     # --- Step 3: Turn right, marker up ---
     print("STEP 3: Marker is UP, turning RIGHT for 2.12 seconds.")
-    start_time = time.time()
-    while time.time() - start_time < 2.12:
-        ser.write(TURN_RIGHT_IN_PLACE)
-        time.sleep(0.05)
-        ser.write(MARKER_UP)
-        time.sleep(0.05)
+    ser.write(MARKER_UP)
+    turn_right_90_degrees(ser)
     ser.write(BALANCE) 
     time.sleep(1.5)    
 
@@ -183,11 +179,9 @@ def run_timed_square_sequence(ser):
     
     # --- Step 6: Turn right, marker up ---
     start_time = time.time()
-    while time.time() - start_time < 2.12:
-        ser.write(TURN_RIGHT_IN_PLACE)
-        time.sleep(0.05)
-        ser.write(MARKER_UP)
-        time.sleep(0.05)
+    ser.write(MARKER_UP)
+    turn_right_90_degrees(ser)
+    
     ser.write(BALANCE) 
     time.sleep(1.5)    
 
@@ -212,12 +206,9 @@ def run_timed_square_sequence(ser):
     time.sleep(1.5)   
 
     # --- Step 9: Turn right, marker up ---
-    start_time = time.time()
-    while time.time() - start_time < 2.12:
-        ser.write(TURN_RIGHT_IN_PLACE)
-        time.sleep(0.05)
-        ser.write(MARKER_UP)
-        time.sleep(0.05)
+    ser.write(MARKER_UP)
+    turn_right_90_degrees(ser)
+
     ser.write(BALANCE) 
     time.sleep(1.5)    
 
