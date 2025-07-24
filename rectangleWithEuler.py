@@ -63,6 +63,40 @@ def get_yaw_from_bittle(ser):
                 continue
     return None
 
+def turn_right_90_degrees(ser):
+    """
+    Turn right until yaw has changed by ~90 degrees.
+    """
+    print("ACTION: Turning right 90° based on yaw reading...")
+
+    initial_yaw = None
+    while initial_yaw is None:
+        initial_yaw = get_yaw_from_bittle(ser)
+
+    target_yaw = (initial_yaw + 90) % 360
+
+    def angle_diff(a, b):
+        return ((a - b + 180) % 360) - 180
+
+    while True:
+        current_yaw = get_yaw_from_bittle(ser)
+        if current_yaw is None:
+            continue
+
+        diff = angle_diff(current_yaw, target_yaw)
+        print(f"Yaw: {current_yaw:.1f}° → Target: {target_yaw:.1f}° (Δ={diff:.1f}°)")
+
+        if abs(diff) < 5:
+            break  # Close enough to 90°
+
+        ser.write(TURN_RIGHT_IN_PLACE)
+        time.sleep(0.05)
+
+    ser.write(BALANCE)
+    print("90-degree turn complete.\n")
+    time.sleep(1.0)
+
+
 def run_timed_square_sequence(ser):
     """
     Runs the pre-defined, timed sequence of movements.
