@@ -55,17 +55,14 @@ def get_yaw_from_bittle(ser):
         line = ser.readline().decode(errors="ignore").strip()
         if line.startswith("ICM:") or line.startswith("MCU:"):
             try:
-                # Remove label prefix
-                line = line.split(":")[1].strip()
-                # Split into float values
-                values = [float(x) for x in line.split()]
-                if len(values) >= 6:
-                    yaw = values[3]  # 4th value is yaw (YPR[0])
-                    return yaw
+                # Strip prefix and split by whitespace
+                parts = line.split(":")[1].strip().split()
+                if len(parts) >= 6:
+                    yaw = float(parts[3])  # Yaw is the 4th value (YPR[0])
+                    return yaw % 360  # Normalize to [0, 360)
             except (ValueError, IndexError):
                 continue
     return None
-
 
 def turn_right_90_degrees(ser):
     """
@@ -130,7 +127,7 @@ def run_timed_square_sequence(ser):
     ser.write(BALANCE) 
     time.sleep(1.5)    
 
-    print("STEP 3: Holding Marker DOWN for 2.60 seconds.")
+    print("STEP 2: Holding Marker DOWN for 2.60 seconds.")
     start_time = time.time()
     while time.time() - start_time < 2.60:
         ser.write(WALK_FORWARD)
