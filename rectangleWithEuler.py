@@ -11,10 +11,12 @@ SERIAL_PORT = '/dev/tty.BittleA9_SSP' # Example port, change if needed
 BAUD_RATE = 115200
 
 # --- Command Definitions ---
-# These are the basic actions the Bittle can perform.
+# These are the basic actions the Bittle can perform.s
+TURN_OFF_VOICE = b'XAd\n'
 WALK_FORWARD = b'kwkF\n'
 WALK_BACKWARD = b'kbkF\n'
 TURN_RIGHT_IN_PLACE = b'kvtR\n'
+TURN_LEFT_IN_PLACE = b'kvtL\n'
 BALANCE = b'kbalance\n'   # Command to stop current movement and stand still
 REST = b'd\n'             # Command to turn off all servos and rest
 # --- ADDED: Command to turn off auto-balancing to prevent jittering ---
@@ -39,6 +41,9 @@ def connect_to_bittle():
         # --- ADDED: Turn off auto-balancing to prevent jittering during the sequence ---
         print("INFO: Turning off auto-balancing.")
         ser.write(TURN_OFF_BALANCE)
+        time.sleep(0.5)
+        ser.write(TURN_OFF_VOICE)
+        print("INFO: Turning off voice command.")
         time.sleep(0.5)
         return ser
     except serial.SerialException:
@@ -90,8 +95,8 @@ def turn_right_90_degrees(ser):
         if abs(diff) < 5:
             break  # Close enough to 90°
 
-        ser.write(TURN_RIGHT_IN_PLACE)
-        time.sleep(0.2)
+        ser.write(TURN_LEFT_IN_PLACE)
+        time.sleep(2)
 
     ser.write(BALANCE)
     print("90-degree turn complete.\n")
