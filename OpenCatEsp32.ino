@@ -105,12 +105,13 @@ void loop() {
   readEnvironment();  // update the gyro data
   //  //— special behaviors based on sensor events
   dealWithExceptions();  // low battery, fall over, lifted, etc.
+  checkTurnProgress();
   if (!tQueue->cleared()) {
     tQueue->popTask();
   } else {
     readSignal();
-    if (token == 'g') {
-      turnLeft90();
+    if (token == 'turnL90') {
+      startTurnLeft90();
     }
     
 #ifdef QUICK_DEMO
