@@ -31,12 +31,13 @@
 
 // State variables for non-blocking turn
 bool turningLeft = false;
+bool turningRight = false;
 float turnStartYaw = 0;
 int turnAttempts = 0;
 unsigned long lastTurnTime = 0;
 
 void startTurnLeft90() {
-  if (!turningLeft) {
+  if (!turningLeft && !turningRight) {
     turningLeft = true;
     turnAttempts = 0;
     lastTurnTime = millis();
@@ -60,8 +61,33 @@ void startTurnLeft90() {
   }
 }
 
+void startTurnRight90() {
+  if (!turningLeft && !turningRight) {
+    turningRight = true;
+    turnAttempts = 0;
+    lastTurnTime = millis();
+    
+#ifdef IMU_ICM42670
+    if (icmQ) {
+      turnStartYaw = icm.ypr[0];
+    }
+#endif
+#ifdef IMU_MPU6050
+    if (mpuQ) {
+      turnStartYaw = mpu.ypr[0];
+    }
+#endif
+
+    PTL("Starting Right Turn 90 Degrees...");
+    PT("Start Yaw: "); PTL(turnStartYaw);
+    
+    // Add the first turn task
+    tQueue->addTask('k', "vtR", 700);
+  }
+}
+
 void checkTurnProgress() {
-  if (!turningLeft) return;
+  if (!turningLeft && !turningRight) return;
   
   // Check progress every 800ms (700ms task + 100ms buffer)
   if (millis() - lastTurnTime > 800) {
@@ -78,7 +104,13 @@ void checkTurnProgress() {
     }
 #endif
 
-    float yawDiff = turnStartYaw - currentYaw;
+    float yawDiff;
+    if (turningLeft) {
+      yawDiff = turnStartYaw - currentYaw;  // Left turn: positive difference
+    } else {
+      yawDiff = currentYaw - turnStartYaw;  // Right turn: positive difference
+    }
+    
     if (yawDiff < -180.0) yawDiff += 360.0;
     if (yawDiff > 180.0) yawDiff -= 360.0;
 
@@ -87,17 +119,27 @@ void checkTurnProgress() {
     PT("Attempt: "); PTL(turnAttempts + 1);
 
     if (abs(yawDiff) >= 85.0) {
-      PTL("Turn complete!");
+      if (turningLeft) {
+        PTL("Left turn complete!");
+      } else {
+        PTL("Right turn complete!");
+      }
       turningLeft = false;
+      turningRight = false;
       tQueue->addTask('k', "balance", 500);
     } else if (turnAttempts < 10) {
       // Continue turning
       turnAttempts++;
-      tQueue->addTask('k', "vtL", 700);
+      if (turningLeft) {
+        tQueue->addTask('k', "vtL", 700);
+      } else {
+        tQueue->addTask('k', "vtR", 700);
+      }
       lastTurnTime = millis();
     } else {
       PTL("Turn failed - max attempts reached");
       turningLeft = false;
+      turningRight = false;
       tQueue->addTask('k', "balance", 500);
     }
   }
@@ -136,7 +178,10 @@ void loop() {
   } else {
     readSignal();
     if (token == 'g') {
-      startTurnLeft90();  // Changed from turnLeft90()
+      startTurnLeft90();  // Left turn
+    }
+    if (token == 'h') {
+      startTurnRight90(); // Right turn
     }
     
 #ifdef QUICK_DEMO
