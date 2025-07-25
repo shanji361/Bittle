@@ -28,37 +28,31 @@
 #define QUICK_DEMO                // for quick demo
 // #define ROBOT_ARM                 // for attaching head clip arm
 #include "src/OpenCat.h"
+bool turningLeft = false;
+float turnStartYaw = 0;
+int turnAttempts = 0;
+unsigned long lastTurnTime = 0;
 
-void turnLeft90() {
-  float targetYaw;
-  float startYaw;
+void startTurnLeft90() {
+  if (!turningLeft) {
+    turningLeft = true;
+    turnAttempts = 0;
+    lastTurnTime = millis();
 #ifdef IMU_ICM42670
-  if (icmQ) {
-    startYaw = icm.ypr[0];
-  }
+    if (icmQ) turnStartYaw = icm.ypr[0];
 #endif
 #ifdef IMU_MPU6050
-  if (mpuQ) {
-    startYaw = mpu.ypr[0];
-  }
+    if (mpuQ) turnStartYaw = mpu.ypr[0];
 #endif
+    PTL("Starting Left Turn...");
+    tQueue->addTask('k', "vtL", 700);
+  }
+}
 
-  targetYaw = startYaw - 90.0;
-  if (targetYaw < -180.0) targetYaw += 360.0;  // normalize
-
-  PTL("Turning Left 90 Degrees...");
-  PT("Start Yaw: "); PTL(startYaw);
-  PT("Target Yaw: "); PTL(targetYaw);
-
-  int attempts = 0;
-  const int maxAttempts = 10;
-  const int interval = 700;  // time in ms, tweak as needed
-
-  while (attempts++ < maxAttempts) {
-    tQueue->addTask('k', "vtL", interval);  // left turn
-    delay(interval + 100);  // allow task to execute and yaw to update
-    readEnvironment();  // update IMU
-    
+void checkTurnProgress() {
+  if (!turningLeft) return;
+  
+  if (millis() - lastTurnTime > 800) { // Check every 800ms
     float currentYaw = 0.0;
 #ifdef IMU_ICM42670
     currentYaw = icm.ypr[0];
@@ -66,23 +60,27 @@ void turnLeft90() {
 #ifdef IMU_MPU6050
     currentYaw = mpu.ypr[0];
 #endif
-
-    float yawDiff = startYaw - currentYaw;
+    
+    float yawDiff = turnStartYaw - currentYaw;
     if (yawDiff < -180.0) yawDiff += 360.0;
     if (yawDiff > 180.0) yawDiff -= 360.0;
-
-    PT("Current Yaw: "); PTL(currentYaw);
-    PT("Diff: "); PTL(yawDiff);
-
+    
+    PT("Turn progress - Yaw diff: "); PTL(yawDiff);
+    
     if (abs(yawDiff) >= 85.0) {
-      PTL("Finished turning!");
-      break;
+      PTL("Turn complete!");
+      turningLeft = false;
+      tQueue->addTask('k', "balance", 500);
+    } else if (turnAttempts++ < 10) {
+      tQueue->addTask('k', "vtL", 700);
+      lastTurnTime = millis();
+    } else {
+      PTL("Turn failed - max attempts reached");
+      turningLeft = false;
+      tQueue->addTask('k', "balance", 500);
     }
   }
-
-  tQueue->addTask('k', "balance", 500);  // optional: return to neutral
 }
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);  // USB serial
