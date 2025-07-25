@@ -28,6 +28,8 @@
 #define QUICK_DEMO                // for quick demo
 // #define ROBOT_ARM                 // for attaching head clip arm
 #include "src/OpenCat.h"
+
+// State variables for non-blocking turn
 bool turningLeft = false;
 float turnStartYaw = 0;
 int turnAttempts = 0;
@@ -38,13 +40,22 @@ void startTurnLeft90() {
     turningLeft = true;
     turnAttempts = 0;
     lastTurnTime = millis();
+    
 #ifdef IMU_ICM42670
-    if (icmQ) turnStartYaw = icm.ypr[0];
+    if (icmQ) {
+      turnStartYaw = icm.ypr[0];
+    }
 #endif
 #ifdef IMU_MPU6050
-    if (mpuQ) turnStartYaw = mpu.ypr[0];
+    if (mpuQ) {
+      turnStartYaw = mpu.ypr[0];
+    }
 #endif
-    PTL("Starting Left Turn...");
+
+    PTL("Starting Left Turn 90 Degrees...");
+    PT("Start Yaw: "); PTL(turnStartYaw);
+    
+    // Add the first turn task
     tQueue->addTask('k', "vtL", 700);
   }
 }
@@ -52,26 +63,36 @@ void startTurnLeft90() {
 void checkTurnProgress() {
   if (!turningLeft) return;
   
-  if (millis() - lastTurnTime > 800) { // Check every 800ms
+  // Check progress every 800ms (700ms task + 100ms buffer)
+  if (millis() - lastTurnTime > 800) {
     float currentYaw = 0.0;
+    
 #ifdef IMU_ICM42670
-    currentYaw = icm.ypr[0];
+    if (icmQ) {
+      currentYaw = icm.ypr[0];
+    }
 #endif
 #ifdef IMU_MPU6050
-    currentYaw = mpu.ypr[0];
+    if (mpuQ) {
+      currentYaw = mpu.ypr[0];
+    }
 #endif
-    
+
     float yawDiff = turnStartYaw - currentYaw;
     if (yawDiff < -180.0) yawDiff += 360.0;
     if (yawDiff > 180.0) yawDiff -= 360.0;
-    
-    PT("Turn progress - Yaw diff: "); PTL(yawDiff);
-    
+
+    PT("Current Yaw: "); PTL(currentYaw);
+    PT("Yaw Diff: "); PTL(yawDiff);
+    PT("Attempt: "); PTL(turnAttempts + 1);
+
     if (abs(yawDiff) >= 85.0) {
       PTL("Turn complete!");
       turningLeft = false;
       tQueue->addTask('k', "balance", 500);
-    } else if (turnAttempts++ < 10) {
+    } else if (turnAttempts < 10) {
+      // Continue turning
+      turnAttempts++;
       tQueue->addTask('k', "vtL", 700);
       lastTurnTime = millis();
     } else {
@@ -81,6 +102,7 @@ void checkTurnProgress() {
     }
   }
 }
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);  // USB serial
@@ -105,13 +127,16 @@ void loop() {
   readEnvironment();  // update the gyro data
   //  //— special behaviors based on sensor events
   dealWithExceptions();  // low battery, fall over, lifted, etc.
+  
+  // Check turn progress every loop iteration
   checkTurnProgress();
+  
   if (!tQueue->cleared()) {
     tQueue->popTask();
   } else {
     readSignal();
-    if (token == 'turnL90') {
-      startTurnLeft90();
+    if (token == 'g') {
+      startTurnLeft90();  // Changed from turnLeft90()
     }
     
 #ifdef QUICK_DEMO
