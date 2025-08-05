@@ -105,7 +105,7 @@ def run_timed_triangle_sequence(ser):
     time.sleep(1.5)
 
     start_time = time.time()
-    while time.time() - start_time < 0.6:
+    while time.time() - start_time < 0.8:
         ser.write(WALK_BACKWARD)
         time.sleep(0.05)
         ser.write(MARKER_UP)
@@ -134,7 +134,7 @@ def run_timed_triangle_sequence(ser):
 
 
     start_time = time.time()
-    while time.time() - start_time < 0.6:
+    while time.time() - start_time < 0.7:
         ser.write(WALK_BACKWARD)
         time.sleep(0.05)
         ser.write(MARKER_UP)
@@ -143,7 +143,7 @@ def run_timed_triangle_sequence(ser):
     time.sleep(1.5)
 
     print("STEP 5: Marker UP, turning RIGHT 120°.")
-    ser.write(b'k vtR 120\n')
+    ser.write(b'k vtR 100\n')
     time.sleep(0.05)
     ser.write(MARKER_UP)
     time.sleep(6.0)
