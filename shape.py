@@ -20,7 +20,7 @@ REST = b'd\n'             # Command to turn off all servos and rest
 # --- ADDED: Command to turn off auto-balancing to prevent jittering ---
 TURN_OFF_BALANCE = b'gb\n'
 ##--- ADDED: New command for the pattern function ---
-SPIN_LEFT = b'k vtL 90\n'
+TURN_LEFT_90 = b'k vtL 90\n'
 
 # --- Marker Control Commands (using head servos) ---
 # The 'm3' command targets the servo on Pin 3.
@@ -55,10 +55,10 @@ def backward_pattern(bittle):
     """
     pattern = [
         ("backward", WALK_BACKWARD, BACKWARD_DURATION, "Sent: WALK_BACKWARD"),
-        ("left", SPIN_LEFT, LEFT_DURATION, "Sent: SPIN_LEFT"),
+        ("left", TURN_LEFT_90, LEFT_DURATION, "Sent: TURN_LEFT_90"),
         ("backward", WALK_BACKWARD, BACKWARD_DURATION, "Sent: WALK_BACKWARD"),
         ("backward", WALK_BACKWARD, BACKWARD_DURATION, "Sent: WALK_BACKWARD"),
-        ("left", SPIN_LEFT, LEFT_DURATION, "Sent: SPIN_LEFT"),
+        ("left", TURN_LEFT_90, LEFT_DURATION, "Sent: TURN_LEFT_90"),
         ("backward", WALK_BACKWARD, BACKWARD_DURATION, "Sent: WALK_BACKWARD"),
     ]
 
